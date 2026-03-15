@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace SocialMedia.Api.Controllers
+namespace PhoneHub.Api.Controllers
 {
     [Route("api/test")]
     [ApiController]

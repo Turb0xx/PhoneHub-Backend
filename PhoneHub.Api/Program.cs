@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using PhoneHub.Infrastructure.Data; // Actualizado de SocialMedia a PhoneHub
+using PhoneHub.Core.Interfaces;
+using PhoneHub.Infrastructure.Data;
+using PhoneHub.Infrastructure.Repositories;
 
-namespace PhoneHub.Api // Actualizado el namespace
+namespace PhoneHub.Api
 {
     public class Program
     {
@@ -9,23 +11,26 @@ namespace PhoneHub.Api // Actualizado el namespace
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
             #region Configurar la BD MySql
             var connectionString = builder.Configuration.GetConnectionString("ConnectionMySql");
-
             builder.Services.AddDbContext<PhoneHubContext>(options =>
                 options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
-                    // ESTA ES LA LÍNEA CLAVE:
                     b => b.MigrationsAssembly("PhoneHub.Infrastructure")));
             #endregion
 
-            builder.Services.AddControllers();
+            #region Registro de Repositorios
+            builder.Services.AddTransient<IProductRepository, ProductRepository>();
+            builder.Services.AddTransient<ISaleRepository, SaleRepository>();
+            #endregion
+
+            // AddNewtonsoftJson evita errores de ciclos infinitos por las relaciones Sale->Product->Sale
+            builder.Services.AddControllers().AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
             builder.Services.AddOpenApi();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
