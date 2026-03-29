@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35919.96
@@ -8,6 +8,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhoneHub.Core", "PhoneHub.Core\PhoneHub.Core.csproj", "{90085AE6-3F3A-B83E-FE49-3897CF5E3D06}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhoneHub.Infrastructure", "PhoneHub.Infrastructure\PhoneHub.Infrastructure.csproj", "{D4FF0F82-4760-2896-57A8-950CA4D7D848}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhoneHub.Services", "PhoneHub.Services\PhoneHub.Services.csproj", "{8B3A9F2E-4C1D-4E5F-A6B7-C8D9E0F1A2B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{D4FF0F82-4760-2896-57A8-950CA4D7D848}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4FF0F82-4760-2896-57A8-950CA4D7D848}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4FF0F82-4760-2896-57A8-950CA4D7D848}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B3A9F2E-4C1D-4E5F-A6B7-C8D9E0F1A2B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B3A9F2E-4C1D-4E5F-A6B7-C8D9E0F1A2B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B3A9F2E-4C1D-4E5F-A6B7-C8D9E0F1A2B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B3A9F2E-4C1D-4E5F-A6B7-C8D9E0F1A2B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

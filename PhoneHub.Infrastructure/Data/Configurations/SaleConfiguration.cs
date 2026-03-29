@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PhoneHub.Core.Entities;
 
@@ -6,39 +6,42 @@ namespace PhoneHub.Infrastructure.Data.Configurations
 {
     public class SaleConfiguration : IEntityTypeConfiguration<Sale>
     {
-        public void Configure(EntityTypeBuilder<Sale> builder)
+        public void Configure(EntityTypeBuilder<Sale> entity)
         {
-            builder.ToTable("Sales");
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            builder.HasKey(e => e.Id);
+            entity.ToTable("sales");
 
-            builder.Property(e => e.Date)
+            entity.HasIndex(e => e.ProductId, "FK_Sale_Product");
+            entity.HasIndex(e => e.UserId, "FK_Sale_User");
+
+            entity.Property(e => e.Date)
                 .IsRequired()
                 .HasColumnType("datetime");
 
-            builder.Property(e => e.Quantity)
+            entity.Property(e => e.Quantity)
                 .IsRequired()
                 .HasDefaultValue(1);
 
-            builder.Property(e => e.TotalAmount)
+            entity.Property(e => e.TotalAmount)
                 .IsRequired()
                 .HasColumnType("decimal(18,2)");
 
-            builder.Property(e => e.IsActive)
+            entity.Property(e => e.IsActive)
                 .HasColumnType("bit")
                 .IsRequired();
 
-            // Relación con el Producto (Requerimiento 3)
-            builder.HasOne(d => d.Product)
+            entity.HasOne(d => d.Product)
                 .WithMany(p => p.Sales)
                 .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Sale_Product");
 
-            // Relación con el Usuario/Vendedor (Requerimiento 7)
-            builder.HasOne(d => d.User)
+            entity.HasOne(d => d.User)
                 .WithMany(p => p.Sales)
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Sale_User");
         }
     }
 }

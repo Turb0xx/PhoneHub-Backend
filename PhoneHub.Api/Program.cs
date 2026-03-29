@@ -1,7 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using PhoneHub.Core.Interfaces;
 using PhoneHub.Infrastructure.Data;
+using PhoneHub.Infrastructure.Mappings;
 using PhoneHub.Infrastructure.Repositories;
+using PhoneHub.Services.Interfaces;
+using PhoneHub.Services.Services;
+using PhoneHub.Services.Validators;
 
 namespace PhoneHub.Api
 {
@@ -11,21 +15,29 @@ namespace PhoneHub.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            #region Configurar la BD MySql
             var connectionString = builder.Configuration.GetConnectionString("ConnectionMySql");
             builder.Services.AddDbContext<PhoneHubContext>(options =>
                 options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
                     b => b.MigrationsAssembly("PhoneHub.Infrastructure")));
-            #endregion
 
-            #region Registro de Repositorios
-            builder.Services.AddTransient<IProductRepository, ProductRepository>();
-            builder.Services.AddTransient<ISaleRepository, SaleRepository>();
-            #endregion
+            builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 
-            // AddNewtonsoftJson evita errores de ciclos infinitos por las relaciones Sale->Product->Sale
-            builder.Services.AddControllers().AddNewtonsoftJson(options =>
-                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            builder.Services.AddTransient<IProductService, ProductService>();
+            builder.Services.AddTransient<ISaleService, SaleService>();
+
+            builder.Services.AddControllers()
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.ReferenceLoopHandling
+                        = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                });
+
+            builder.Services.AddAutoMapper(typeof(ProductProfile).Assembly);
+
+            builder.Services.AddScoped<CrearProductoDtoValidator>();
+            builder.Services.AddScoped<ActualizarProductoDtoValidator>();
+            builder.Services.AddScoped<InventoryIngressDtoValidator>();
+            builder.Services.AddScoped<SaleRequestDtoValidator>();
 
             builder.Services.AddOpenApi();
 

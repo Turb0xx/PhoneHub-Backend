@@ -1,14 +1,13 @@
-namespace PhoneHub.Core.Entities
+namespace PhoneHub.Core.DTOs
 {
-    public class Product : BaseEntity
+    public class ProductDto
     {
+        public int Id { get; set; }
         public string Brand { get; set; } = null!;
         public string Model { get; set; } = null!;
         public string? Description { get; set; }
         public decimal Price { get; set; }
         public int Stock { get; set; }
-        public DateTime CreatedAt { get; set; }
-
-        public virtual ICollection<Sale> Sales { get; set; } = new List<Sale>();
+        public string? RegistrationDate { get; set; }
     }
 }

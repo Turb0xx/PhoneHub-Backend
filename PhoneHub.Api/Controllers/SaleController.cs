@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using PhoneHub.Api.Responses;
 using PhoneHub.Core.DTOs;
-using PhoneHub.Core.Interfaces;
+using PhoneHub.Core.Entities;
+using PhoneHub.Services.Interfaces;
+using PhoneHub.Services.Validators;
 
 namespace PhoneHub.Api.Controllers
 {
@@ -8,47 +11,58 @@ namespace PhoneHub.Api.Controllers
     [ApiController]
     public class SaleController : ControllerBase
     {
-        private readonly ISaleRepository _saleRepository;
+        private readonly ISaleService _saleService;
+        private readonly SaleRequestDtoValidator _saleValidator;
 
-        public SaleController(ISaleRepository saleRepository)
+        public SaleController(
+            ISaleService saleService,
+            SaleRequestDtoValidator saleValidator)
         {
-            _saleRepository = saleRepository;
+            _saleService = saleService;
+            _saleValidator = saleValidator;
         }
 
-        // GET: api/sale
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var sales = await _saleRepository.GetSalesAsync();
-            return Ok(sales);
+            var sales = await _saleService.GetAllSalesAsync();
+            var response = new ApiResponse<IEnumerable<Sale>>(sales);
+            return Ok(response);
         }
 
-        // GET: api/sale/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var sale = await _saleRepository.GetSaleByIdAsync(id);
+            var sale = await _saleService.GetSaleByIdAsync(id);
             if (sale == null)
-                return NotFound(new { message = "Venta no encontrada" });
-            return Ok(sale);
+                return NotFound("Venta no encontrada.");
+
+            var response = new ApiResponse<Sale>(sale);
+            return Ok(response);
         }
 
-        // POST: api/sale/procesar
-        // ✅ Requerimiento: Procesar una Venta
-        // Body ejemplo: { "productId": 1, "userId": 2, "quantity": 3 }
         [HttpPost("procesar")]
         public async Task<IActionResult> ProcessSale(SaleRequestDto dto)
         {
+            var validationResult = await _saleValidator.ValidateAsync(dto);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(new
+                {
+                    message = "Error de validación",
+                    errors = validationResult.Errors.Select(e => new
+                    {
+                        field = e.PropertyName,
+                        error = e.ErrorMessage
+                    })
+                });
+            }
+
             try
             {
-                var sale = await _saleRepository.ProcessSaleAsync(dto);
-                return Created($"api/sale/{sale.Id}", new
-                {
-                    message = "Venta procesada exitosamente",
-                    saleId = sale.Id,
-                    totalAmount = sale.TotalAmount,
-                    date = sale.Date
-                });
+                var sale = await _saleService.ProcessSaleAsync(dto);
+                var response = new ApiResponse<Sale>(sale);
+                return Ok(response);
             }
             catch (Exception ex)
             {

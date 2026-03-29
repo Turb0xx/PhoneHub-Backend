@@ -12,8 +12,8 @@ using PhoneHub.Infrastructure.Data;
 namespace PhoneHub.Infrastructure.Migrations
 {
     [DbContext(typeof(PhoneHubContext))]
-    [Migration("20260311044615_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20260329014937_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -47,10 +47,6 @@ namespace PhoneHub.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
 
-                    b.Property<string>("Image")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
-
                     b.Property<string>("Model")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -64,9 +60,10 @@ namespace PhoneHub.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("products", (string)null);
                 });
 
             modelBuilder.Entity("PhoneHub.Core.Entities.Sale", b =>
@@ -97,13 +94,14 @@ namespace PhoneHub.Infrastructure.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex(new[] { "ProductId" }, "FK_Sale_Product");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex(new[] { "UserId" }, "FK_Sale_User");
 
-                    b.ToTable("Sales", (string)null);
+                    b.ToTable("sales", (string)null);
                 });
 
             modelBuilder.Entity("PhoneHub.Core.Entities.User", b =>
@@ -146,9 +144,10 @@ namespace PhoneHub.Infrastructure.Migrations
                         .HasMaxLength(15)
                         .HasColumnType("varchar(15)");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("users", (string)null);
                 });
 
             modelBuilder.Entity("PhoneHub.Core.Entities.Sale", b =>
@@ -156,12 +155,14 @@ namespace PhoneHub.Infrastructure.Migrations
                     b.HasOne("PhoneHub.Core.Entities.Product", "Product")
                         .WithMany("Sales")
                         .HasForeignKey("ProductId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_Sale_Product");
 
                     b.HasOne("PhoneHub.Core.Entities.User", "User")
                         .WithMany("Sales")
                         .HasForeignKey("UserId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_Sale_User");
 
                     b.Navigation("Product");
 

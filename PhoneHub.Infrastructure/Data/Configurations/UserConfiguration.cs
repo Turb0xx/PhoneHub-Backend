@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PhoneHub.Core.Entities;
 
@@ -6,39 +6,38 @@ namespace PhoneHub.Infrastructure.Data.Configurations
 {
     public class UserConfiguration : IEntityTypeConfiguration<User>
     {
-        public void Configure(EntityTypeBuilder<User> builder)
+        public void Configure(EntityTypeBuilder<User> entity)
         {
-            // Nombre de la tabla en MySQL
-            builder.ToTable("Users");
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            builder.HasKey(e => e.Id);
+            entity.ToTable("users");
 
-            builder.Property(e => e.FirstName)
+            entity.Property(e => e.FirstName)
                 .IsRequired()
                 .HasMaxLength(50);
 
-            builder.Property(e => e.LastName)
+            entity.Property(e => e.LastName)
                 .IsRequired()
                 .HasMaxLength(50);
 
-            builder.Property(e => e.Email)
+            entity.Property(e => e.Email)
                 .IsRequired()
-                .HasMaxLength(100); // Subimos a 100 por si los correos son largos
+                .HasMaxLength(100);
 
-            builder.Property(e => e.Password)
+            entity.Property(e => e.Password)
                 .IsRequired()
-                .HasMaxLength(200); // Espacio suficiente para un hash de seguridad
+                .HasMaxLength(200);
 
-            builder.Property(e => e.Role)
+            entity.Property(e => e.Role)
                 .IsRequired()
-                .HasMaxLength(20); // Para guardar "Admin" o "Seller"
+                .HasMaxLength(20);
 
-            builder.Property(e => e.Telephone)
-                .HasMaxLength(15) // Los números con código de país suelen ser más largos que 10
+            entity.Property(e => e.Telephone)
+                .HasMaxLength(15)
                 .IsRequired(false);
 
-            builder.Property(e => e.IsActive)
-                .HasColumnType("bit") // El tipo estándar de MySQL para booleanos
+            entity.Property(e => e.IsActive)
+                .HasColumnType("bit")
                 .IsRequired();
         }
     }
