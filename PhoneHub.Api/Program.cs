@@ -30,6 +30,7 @@ namespace PhoneHub.Api
                 {
                     options.SerializerSettings.ReferenceLoopHandling
                         = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                    options.SerializerSettings.DateFormatString = "yyyy-MM-dd HH:mm:ss";
                 });
 
             builder.Services.AddAutoMapper(typeof(ProductProfile).Assembly);

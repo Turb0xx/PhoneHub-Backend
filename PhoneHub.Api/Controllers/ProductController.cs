@@ -74,7 +74,8 @@ namespace PhoneHub.Api.Controllers
             {
                 var product = _mapper.Map<Product>(productDto);
                 await _productService.InsertProduct(product);
-                var response = new ApiResponse<ProductDto>(productDto);
+                var createdDto = _mapper.Map<ProductDto>(product);
+                var response = new ApiResponse<ProductDto>(createdDto);
                 return Ok(response);
             }
             catch (Exception ex)
