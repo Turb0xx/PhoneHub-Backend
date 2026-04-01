@@ -15,14 +15,14 @@ namespace PhoneHub.Infrastructure.Data
         {
         }
 
-        // Definimos las tablas con nombres lógicos para tu sistema
-        public virtual DbSet<Sale> Sales { get; set; } // Antes era Comments
-        public virtual DbSet<Product> Products { get; set; } // Antes era Posts
+        // Definimos las tablas
+        public virtual DbSet<Sale> Sales { get; set; } 
+        public virtual DbSet<Product> Products { get; set; } 
         public virtual DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Esta línea es clave: busca automáticamente los archivos en la carpeta "Configurations"
+            // Busca archivos en configuration 
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
     }
