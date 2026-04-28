@@ -7,6 +7,7 @@ namespace PhoneHub.Services.Interfaces
     public interface IProductService
     {
         Task<IEnumerable<Product>> GetAllProductsAsync(ProductQueryFilter? filters = null);
+        Task<IEnumerable<Product>> GetAvailableProductsDapperAsync();
         Task<Product?> GetProductByIdAsync(int id);
         Task InsertProduct(Product product);
         Task UpdateProduct(Product product);

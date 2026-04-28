@@ -42,6 +42,15 @@ namespace PhoneHub.Api.Controllers
             return Ok(response);
         }
 
+        [HttpGet("dapper")]
+        public async Task<IActionResult> GetAvailableDapper()
+        {
+            var products = await _productService.GetAvailableProductsDapperAsync();
+            var productsDto = _mapper.Map<IEnumerable<ProductDto>>(products);
+            var response = new ApiResponse<IEnumerable<ProductDto>>(productsDto);
+            return Ok(response);
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {

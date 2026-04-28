@@ -9,39 +9,37 @@ namespace PhoneHub.Services.Services
 {
     public class SaleService : ISaleService
     {
-        private readonly ISaleRepository _saleRepository;
-        private readonly IProductRepository _productRepository;
-        private readonly IBaseRepository<User> _userRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public SaleService(
-            ISaleRepository saleRepository,
-            IProductRepository productRepository,
-            IBaseRepository<User> userRepository)
+        public SaleService(IUnitOfWork unitOfWork)
         {
-            _saleRepository = saleRepository;
-            _productRepository = productRepository;
-            _userRepository = userRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IEnumerable<Sale>> GetAllSalesAsync()
         {
-            return await _saleRepository.GetAllWithDetailsAsync();
+            return await _unitOfWork.SaleRepository.GetAllWithDetailsAsync();
+        }
+
+        public async Task<IEnumerable<Sale>> GetAllSalesDapperAsync()
+        {
+            return await _unitOfWork.SaleRepository.GetAllWithDetailsDapperAsync();
         }
 
         public async Task<Sale?> GetSaleByIdAsync(int id)
         {
-            return await _saleRepository.GetByIdWithDetailsAsync(id);
+            return await _unitOfWork.SaleRepository.GetByIdWithDetailsAsync(id);
         }
 
         public async Task<Sale> ProcessSaleAsync(SaleRequestDto dto)
         {
-            var product = await _productRepository.GetById(dto.ProductId);
+            var product = await _unitOfWork.ProductRepository.GetById(dto.ProductId);
             if (product == null)
-                throw new BusinessException("El producto no existe.", HttpStatusCode.NotFound);
+                throw new NotFoundException("El producto no existe.");
 
-            var user = await _userRepository.GetById(dto.UserId);
+            var user = await _unitOfWork.UserRepository.GetById(dto.UserId);
             if (user == null)
-                throw new BusinessException("El usuario no existe.", HttpStatusCode.NotFound);
+                throw new NotFoundException("El usuario no existe.");
 
             if (product.Stock < dto.Quantity)
                 throw new BusinessException(
@@ -59,11 +57,10 @@ namespace PhoneHub.Services.Services
             };
 
             product.Stock -= dto.Quantity;
-            _productRepository.Update(product);
-            await _saleRepository.Add(sale);
-            await _saleRepository.SaveChangesAsync(); // guarda update + insert en una sola transacción
+            _unitOfWork.ProductRepository.Update(product);
+            await _unitOfWork.SaleRepository.Add(sale);
+            await _unitOfWork.SaveChangesAsync();
 
-            // asignar nav props para el mapeo del comprobante
             sale.Product = product;
             sale.User = user;
 

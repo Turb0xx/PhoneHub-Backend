@@ -1,5 +1,6 @@
 using PhoneHub.Core.DTOs;
 using PhoneHub.Core.Entities;
+using PhoneHub.Core.Exceptions;
 using PhoneHub.Core.Interfaces;
 using PhoneHub.Core.QueryFilters;
 using PhoneHub.Services.Interfaces;
@@ -8,11 +9,11 @@ namespace PhoneHub.Services.Services
 {
     public class ProductService : IProductService
     {
-        private readonly IProductRepository _productRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ProductService(IProductRepository productRepository)
+        public ProductService(IUnitOfWork unitOfWork)
         {
-            _productRepository = productRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IEnumerable<Product>> GetAllProductsAsync(ProductQueryFilter? filters = null)
@@ -20,9 +21,9 @@ namespace PhoneHub.Services.Services
             IEnumerable<Product> products;
 
             if (filters?.OnlyAvailable == true)
-                products = await _productRepository.GetAllAvailableAsync();
+                products = await _unitOfWork.ProductRepository.GetAllAvailableAsync();
             else
-                products = await _productRepository.GetAll();
+                products = await _unitOfWork.ProductRepository.GetAll();
 
             if (filters != null)
             {
@@ -39,39 +40,44 @@ namespace PhoneHub.Services.Services
             return products;
         }
 
+        public async Task<IEnumerable<Product>> GetAvailableProductsDapperAsync()
+        {
+            return await _unitOfWork.ProductRepository.GetAllAvailableDapperAsync();
+        }
+
         public async Task<Product?> GetProductByIdAsync(int id)
         {
-            return await _productRepository.GetById(id);
+            return await _unitOfWork.ProductRepository.GetById(id);
         }
 
         public async Task InsertProduct(Product product)
         {
             product.CreatedAt = DateTime.Now;
-            await _productRepository.Add(product);
-            await _productRepository.SaveChangesAsync();
+            await _unitOfWork.ProductRepository.Add(product);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task UpdateProduct(Product product)
         {
-            _productRepository.Update(product);
-            await _productRepository.SaveChangesAsync();
+            _unitOfWork.ProductRepository.Update(product);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task DeleteProduct(int id)
         {
-            await _productRepository.Delete(id);
-            await _productRepository.SaveChangesAsync();
+            await _unitOfWork.ProductRepository.Delete(id);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task<bool> AddInventoryIngressAsync(InventoryIngressDto dto)
         {
-            var product = await _productRepository.GetById(dto.ProductId);
+            var product = await _unitOfWork.ProductRepository.GetById(dto.ProductId);
             if (product == null)
-                return false;
+                throw new NotFoundException("El producto no existe.");
 
             product.Stock += dto.Quantity;
-            _productRepository.Update(product);
-            await _productRepository.SaveChangesAsync();
+            _unitOfWork.ProductRepository.Update(product);
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
     }

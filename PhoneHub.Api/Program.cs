@@ -20,10 +20,14 @@ namespace PhoneHub.Api
             builder.Services.AddDbContext<PhoneHubContext>(options =>
                 options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
-            builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
-            builder.Services.AddScoped<IProductRepository, ProductRepository>();
-            builder.Services.AddScoped<ISaleRepository, SaleRepository>();
+            // Dapper
+            builder.Services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
+            builder.Services.AddScoped<IDapperContext, DapperContext>();
 
+            // UnitOfWork
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            // Services
             builder.Services.AddTransient<IProductService, ProductService>();
             builder.Services.AddTransient<ISaleService, SaleService>();
 
