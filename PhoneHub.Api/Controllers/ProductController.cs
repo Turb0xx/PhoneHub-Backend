@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PhoneHub.Api.Responses;
 using PhoneHub.Core.DTOs;
 using PhoneHub.Core.Entities;
+using PhoneHub.Core.QueryFilters;
 using PhoneHub.Services.Interfaces;
 using PhoneHub.Services.Validators;
 
@@ -33,9 +34,9 @@ namespace PhoneHub.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] ProductQueryFilter? filters)
         {
-            var products = await _productService.GetAllProductsAsync();
+            var products = await _productService.GetAllProductsAsync(filters);
             var productsDto = _mapper.Map<IEnumerable<ProductDto>>(products);
             var response = new ApiResponse<IEnumerable<ProductDto>>(productsDto);
             return Ok(response);

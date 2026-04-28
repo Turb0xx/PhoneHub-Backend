@@ -1,7 +1,8 @@
+using AutoMapper;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using PhoneHub.Api.Responses;
 using PhoneHub.Core.DTOs;
-using PhoneHub.Core.Entities;
 using PhoneHub.Services.Interfaces;
 using PhoneHub.Services.Validators;
 
@@ -12,13 +13,16 @@ namespace PhoneHub.Api.Controllers
     public class SaleController : ControllerBase
     {
         private readonly ISaleService _saleService;
+        private readonly IMapper _mapper;
         private readonly SaleRequestDtoValidator _saleValidator;
 
         public SaleController(
             ISaleService saleService,
+            IMapper mapper,
             SaleRequestDtoValidator saleValidator)
         {
             _saleService = saleService;
+            _mapper = mapper;
             _saleValidator = saleValidator;
         }
 
@@ -26,7 +30,8 @@ namespace PhoneHub.Api.Controllers
         public async Task<IActionResult> GetAll()
         {
             var sales = await _saleService.GetAllSalesAsync();
-            var response = new ApiResponse<IEnumerable<Sale>>(sales);
+            var salesDto = _mapper.Map<IEnumerable<SaleResponseDto>>(sales);
+            var response = new ApiResponse<IEnumerable<SaleResponseDto>>(salesDto);
             return Ok(response);
         }
 
@@ -37,7 +42,8 @@ namespace PhoneHub.Api.Controllers
             if (sale == null)
                 return NotFound("Venta no encontrada.");
 
-            var response = new ApiResponse<Sale>(sale);
+            var saleDto = _mapper.Map<SaleResponseDto>(sale);
+            var response = new ApiResponse<SaleResponseDto>(saleDto);
             return Ok(response);
         }
 
@@ -46,28 +52,12 @@ namespace PhoneHub.Api.Controllers
         {
             var validationResult = await _saleValidator.ValidateAsync(dto);
             if (!validationResult.IsValid)
-            {
-                return BadRequest(new
-                {
-                    message = "Error de validación",
-                    errors = validationResult.Errors.Select(e => new
-                    {
-                        field = e.PropertyName,
-                        error = e.ErrorMessage
-                    })
-                });
-            }
+                throw new ValidationException(validationResult.Errors);
 
-            try
-            {
-                var sale = await _saleService.ProcessSaleAsync(dto);
-                var response = new ApiResponse<Sale>(sale);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var sale = await _saleService.ProcessSaleAsync(dto);
+            var saleDto = _mapper.Map<SaleResponseDto>(sale);
+            var response = new ApiResponse<SaleResponseDto>(saleDto);
+            return Ok(response);
         }
     }
 }
