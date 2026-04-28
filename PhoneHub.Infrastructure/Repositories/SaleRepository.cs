@@ -2,12 +2,19 @@ using Microsoft.EntityFrameworkCore;
 using PhoneHub.Core.Entities;
 using PhoneHub.Core.Interfaces;
 using PhoneHub.Infrastructure.Data;
+using PhoneHub.Infrastructure.Queries;
 
 namespace PhoneHub.Infrastructure.Repositories
 {
     public class SaleRepository : BaseRepository<Sale>, ISaleRepository
     {
-        public SaleRepository(PhoneHubContext context) : base(context) { }
+        private readonly IDapperContext _dapper;
+
+        public SaleRepository(PhoneHubContext context, IDapperContext dapper)
+            : base(context)
+        {
+            _dapper = dapper;
+        }
 
         public async Task<Sale?> GetByIdWithDetailsAsync(int id)
         {
@@ -23,6 +30,18 @@ namespace PhoneHub.Infrastructure.Repositories
                 .Include(s => s.Product)
                 .Include(s => s.User)
                 .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Sale>> GetAllWithDetailsDapperAsync()
+        {
+            try
+            {
+                return await _dapper.QueryAsync<Sale>(SaleQueries.GetAllWithDetails);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

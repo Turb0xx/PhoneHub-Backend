@@ -14,15 +14,15 @@ namespace PhoneHub.Infrastructure.Mappings
                 .ForMember(dest => dest.Date,
                     opt => opt.ConvertUsing<DateTimeToStringConverter, DateTime>())
                 .ForMember(dest => dest.Brand,
-                    opt => opt.MapFrom(src => src.Product.Brand))
+                    opt => opt.MapFrom(src => src.Product != null ? src.Product.Brand : string.Empty))
                 .ForMember(dest => dest.Model,
-                    opt => opt.MapFrom(src => src.Product.Model))
+                    opt => opt.MapFrom(src => src.Product != null ? src.Product.Model : string.Empty))
                 .ForMember(dest => dest.UnitPrice,
-                    opt => opt.MapFrom(src => src.Product.Price))
+                    opt => opt.MapFrom(src => src.Product != null ? src.Product.Price : 0))
                 .ForMember(dest => dest.CustomerName,
-                    opt => opt.MapFrom(src => src.User.FirstName + " " + src.User.LastName))
+                    opt => opt.MapFrom(src => src.User != null ? src.User.FirstName + " " + src.User.LastName : string.Empty))
                 .ForMember(dest => dest.CustomerEmail,
-                    opt => opt.MapFrom(src => src.User.Email));
+                    opt => opt.MapFrom(src => src.User != null ? src.User.Email : string.Empty));
         }
     }
 }

@@ -6,5 +6,6 @@ namespace PhoneHub.Core.Interfaces
     {
         Task<Sale?> GetByIdWithDetailsAsync(int id);
         Task<IEnumerable<Sale>> GetAllWithDetailsAsync();
+        Task<IEnumerable<Sale>> GetAllWithDetailsDapperAsync();
     }
 }
