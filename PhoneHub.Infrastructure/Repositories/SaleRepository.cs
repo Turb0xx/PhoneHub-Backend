@@ -43,5 +43,10 @@ namespace PhoneHub.Infrastructure.Repositories
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task<bool> ExistsByProductIdAsync(int productId)
+        {
+            return await _entities.AnyAsync(s => s.ProductId == productId);
+        }
     }
 }

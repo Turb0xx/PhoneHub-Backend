@@ -65,6 +65,10 @@ namespace PhoneHub.Services.Services
 
         public async Task DeleteProduct(int id)
         {
+            var hasSales = await _unitOfWork.SaleRepository.ExistsByProductIdAsync(id);
+            if (hasSales)
+                throw new BusinessException("No se puede eliminar el producto porque tiene ventas asociadas.");
+
             await _unitOfWork.ProductRepository.Delete(id);
             await _unitOfWork.SaveChangesAsync();
         }
