@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using PhoneHub.Core.DTOs;
 using PhoneHub.Core.Entities;
+using PhoneHub.Core.Enum;
 using PhoneHub.Core.Interfaces;
 using PhoneHub.Infrastructure.Data;
 using PhoneHub.Infrastructure.Queries;
@@ -32,11 +34,18 @@ namespace PhoneHub.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Sale>> GetAllWithDetailsDapperAsync()
+        public async Task<IEnumerable<SaleResponseDto>> GetAllWithDetailsDapperAsync(int limit = 10)
         {
             try
             {
-                return await _dapper.QueryAsync<Sale>(SaleQueries.GetAllWithDetails);
+                var sql = _dapper.Provider switch
+                {
+                    DataBaseProvider.SqlServer => SaleQueries.GetAllWithDetailsSqlServer,
+                    DataBaseProvider.MySql => SaleQueries.GetAllWithDetailsMySql,
+                    _ => throw new NotSupportedException("Provider no soportado")
+                };
+
+                return await _dapper.QueryAsync<SaleResponseDto>(sql, new { Limit = limit });
             }
             catch (Exception ex)
             {

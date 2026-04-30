@@ -12,9 +12,6 @@ namespace PhoneHub.Infrastructure.Data
             await SeedSalesAsync(context);
         }
 
-        // ─────────────────────────────────────────────
-        // USERS
-        // ─────────────────────────────────────────────
         private static async Task SeedUsersAsync(PhoneHubContext context)
         {
             if (await context.Users.AnyAsync())
@@ -68,9 +65,6 @@ namespace PhoneHub.Infrastructure.Data
             await context.SaveChangesAsync();
         }
 
-        // ─────────────────────────────────────────────
-        // PRODUCTS
-        // ─────────────────────────────────────────────
         private static async Task SeedProductsAsync(PhoneHubContext context)
         {
             if (await context.Products.AnyAsync())
@@ -158,7 +152,7 @@ namespace PhoneHub.Infrastructure.Data
                     Model       = "Nova 11",
                     Description = "256GB cámara frontal 60MP",
                     Price       = 1750m,
-                    Stock       = 0,   // sin stock — prueba onlyAvailable=true
+                    Stock       = 0,
                     CreatedAt   = now
                 },
                 new Product
@@ -167,7 +161,7 @@ namespace PhoneHub.Infrastructure.Data
                     Model       = "Galaxy A14",
                     Description = "64GB económico entrada de gama",
                     Price       = 850m,
-                    Stock       = 0,   // sin stock — prueba onlyAvailable=true
+                    Stock       = 0,
                     CreatedAt   = now
                 }
             };
@@ -176,15 +170,11 @@ namespace PhoneHub.Infrastructure.Data
             await context.SaveChangesAsync();
         }
 
-        // ─────────────────────────────────────────────
-        // SALES
-        // ─────────────────────────────────────────────
         private static async Task SeedSalesAsync(PhoneHubContext context)
         {
             if (await context.Sales.AnyAsync())
                 return;
 
-            // Recuperar por email/modelo para no depender del orden de IDs
             var ana   = await context.Users.FirstAsync(u => u.Email == "ana@phonehub.com");
             var luis  = await context.Users.FirstAsync(u => u.Email == "luis@phonehub.com");
             var maria = await context.Users.FirstAsync(u => u.Email == "maria@phonehub.com");

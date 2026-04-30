@@ -40,9 +40,9 @@ namespace PhoneHub.Services.Services
             return products;
         }
 
-        public async Task<IEnumerable<Product>> GetAvailableProductsDapperAsync()
+        public async Task<IEnumerable<Product>> GetAvailableProductsDapperAsync(int limit = 10)
         {
-            return await _unitOfWork.ProductRepository.GetAllAvailableDapperAsync();
+            return await _unitOfWork.ProductRepository.GetAllAvailableDapperAsync(limit);
         }
 
         public async Task<Product?> GetProductByIdAsync(int id)

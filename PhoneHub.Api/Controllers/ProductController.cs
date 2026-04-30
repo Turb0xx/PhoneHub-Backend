@@ -1,4 +1,5 @@
 using AutoMapper;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using PhoneHub.Api.Responses;
 using PhoneHub.Core.DTOs;
@@ -43,9 +44,9 @@ namespace PhoneHub.Api.Controllers
         }
 
         [HttpGet("dapper")]
-        public async Task<IActionResult> GetAvailableDapper()
+        public async Task<IActionResult> GetAvailableDapper([FromQuery] int limit = 10)
         {
-            var products = await _productService.GetAvailableProductsDapperAsync();
+            var products = await _productService.GetAvailableProductsDapperAsync(limit);
             var productsDto = _mapper.Map<IEnumerable<ProductDto>>(products);
             var response = new ApiResponse<IEnumerable<ProductDto>>(productsDto);
             return Ok(response);
@@ -68,30 +69,13 @@ namespace PhoneHub.Api.Controllers
         {
             var validationResult = await _crearValidator.ValidateAsync(productDto);
             if (!validationResult.IsValid)
-            {
-                return BadRequest(new
-                {
-                    message = "Error de validación",
-                    errors = validationResult.Errors.Select(e => new
-                    {
-                        field = e.PropertyName,
-                        error = e.ErrorMessage
-                    })
-                });
-            }
+                throw new ValidationException(validationResult.Errors);
 
-            try
-            {
-                var product = _mapper.Map<Product>(productDto);
-                await _productService.InsertProduct(product);
-                var createdDto = _mapper.Map<ProductDto>(product);
-                var response = new ApiResponse<ProductDto>(createdDto);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error al crear el producto", error = ex.Message });
-            }
+            var product = _mapper.Map<Product>(productDto);
+            await _productService.InsertProduct(product);
+            var createdDto = _mapper.Map<ProductDto>(product);
+            var response = new ApiResponse<ProductDto>(createdDto);
+            return Ok(response);
         }
 
         [HttpPut("{id}")]
@@ -102,33 +86,16 @@ namespace PhoneHub.Api.Controllers
 
             var validationResult = await _actualizarValidator.ValidateAsync(productDto);
             if (!validationResult.IsValid)
-            {
-                return BadRequest(new
-                {
-                    message = "Error de validación",
-                    errors = validationResult.Errors.Select(e => new
-                    {
-                        field = e.PropertyName,
-                        error = e.ErrorMessage
-                    })
-                });
-            }
+                throw new ValidationException(validationResult.Errors);
 
             var product = await _productService.GetProductByIdAsync(id);
             if (product == null)
                 return NotFound("Producto no encontrado.");
 
-            try
-            {
-                _mapper.Map(productDto, product);
-                await _productService.UpdateProduct(product);
-                var response = new ApiResponse<ProductDto>(productDto);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error al actualizar el producto", error = ex.Message });
-            }
+            _mapper.Map(productDto, product);
+            await _productService.UpdateProduct(product);
+            var response = new ApiResponse<ProductDto>(productDto);
+            return Ok(response);
         }
 
         [HttpDelete("{id}")]
@@ -147,31 +114,11 @@ namespace PhoneHub.Api.Controllers
         {
             var validationResult = await _inventoryValidator.ValidateAsync(dto);
             if (!validationResult.IsValid)
-            {
-                return BadRequest(new
-                {
-                    message = "Error de validación",
-                    errors = validationResult.Errors.Select(e => new
-                    {
-                        field = e.PropertyName,
-                        error = e.ErrorMessage
-                    })
-                });
-            }
+                throw new ValidationException(validationResult.Errors);
 
-            try
-            {
-                var result = await _productService.AddInventoryIngressAsync(dto);
-                if (!result)
-                    return NotFound(new { message = "Producto no encontrado" });
-
-                var response = new ApiResponse<string>($"Ingreso registrado. Se agregaron {dto.Quantity} unidades al stock.");
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error al registrar el ingreso", error = ex.Message });
-            }
+            await _productService.AddInventoryIngressAsync(dto);
+            var response = new ApiResponse<string>($"Ingreso registrado. Se agregaron {dto.Quantity} unidades al stock.");
+            return Ok(response);
         }
     }
 }

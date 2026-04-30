@@ -25,9 +25,6 @@ namespace PhoneHub.Infrastructure.Data.Configurations
 
             entity.Property(e => e.Price)
                 .IsRequired()
-                //decimal(18,2) es para manejar dinero Los dos numeros significan
-                //18 = total de digitos que puede tener el numero
-                //2 = cuantos de esos digitos van despues del punto decimal
                 .HasColumnType("decimal(18,2)");
 
             entity.Property(e => e.Stock)

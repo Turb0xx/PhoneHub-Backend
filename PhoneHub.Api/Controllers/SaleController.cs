@@ -3,6 +3,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using PhoneHub.Api.Responses;
 using PhoneHub.Core.DTOs;
+using PhoneHub.Core.QueryFilters;
 using PhoneHub.Services.Interfaces;
 using PhoneHub.Services.Validators;
 
@@ -27,20 +28,19 @@ namespace PhoneHub.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] SaleQueryFilter? filters)
         {
-            var sales = await _saleService.GetAllSalesAsync();
+            var sales = await _saleService.GetAllSalesAsync(filters);
             var salesDto = _mapper.Map<IEnumerable<SaleResponseDto>>(sales);
             var response = new ApiResponse<IEnumerable<SaleResponseDto>>(salesDto);
             return Ok(response);
         }
 
         [HttpGet("dapper")]
-        public async Task<IActionResult> GetAllDapper()
+        public async Task<IActionResult> GetAllDapper([FromQuery] int limit = 10)
         {
-            var sales = await _saleService.GetAllSalesDapperAsync();
-            var salesDto = _mapper.Map<IEnumerable<SaleResponseDto>>(sales);
-            var response = new ApiResponse<IEnumerable<SaleResponseDto>>(salesDto);
+            var sales = await _saleService.GetAllSalesDapperAsync(limit);
+            var response = new ApiResponse<IEnumerable<SaleResponseDto>>(sales);
             return Ok(response);
         }
 

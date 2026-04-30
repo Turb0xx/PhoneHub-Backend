@@ -1,3 +1,4 @@
+using PhoneHub.Core.DTOs;
 using PhoneHub.Core.Entities;
 
 namespace PhoneHub.Core.Interfaces
@@ -6,7 +7,7 @@ namespace PhoneHub.Core.Interfaces
     {
         Task<Sale?> GetByIdWithDetailsAsync(int id);
         Task<IEnumerable<Sale>> GetAllWithDetailsAsync();
-        Task<IEnumerable<Sale>> GetAllWithDetailsDapperAsync();
+        Task<IEnumerable<SaleResponseDto>> GetAllWithDetailsDapperAsync(int limit = 10);
         Task<bool> ExistsByProductIdAsync(int productId);
     }
 }

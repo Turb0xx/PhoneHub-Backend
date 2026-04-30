@@ -2,6 +2,7 @@ using PhoneHub.Core.DTOs;
 using PhoneHub.Core.Entities;
 using PhoneHub.Core.Exceptions;
 using PhoneHub.Core.Interfaces;
+using PhoneHub.Core.QueryFilters;
 using PhoneHub.Services.Interfaces;
 using System.Net;
 
@@ -16,14 +17,25 @@ namespace PhoneHub.Services.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Sale>> GetAllSalesAsync()
+        public async Task<IEnumerable<Sale>> GetAllSalesAsync(SaleQueryFilter? filters = null)
         {
-            return await _unitOfWork.SaleRepository.GetAllWithDetailsAsync();
+            var sales = await _unitOfWork.SaleRepository.GetAllWithDetailsAsync();
+
+            if (filters != null)
+            {
+                if (filters.UserId != null)
+                    sales = sales.Where(s => s.UserId == filters.UserId);
+
+                if (filters.ProductId != null)
+                    sales = sales.Where(s => s.ProductId == filters.ProductId);
+            }
+
+            return sales;
         }
 
-        public async Task<IEnumerable<Sale>> GetAllSalesDapperAsync()
+        public async Task<IEnumerable<SaleResponseDto>> GetAllSalesDapperAsync(int limit = 10)
         {
-            return await _unitOfWork.SaleRepository.GetAllWithDetailsDapperAsync();
+            return await _unitOfWork.SaleRepository.GetAllWithDetailsDapperAsync(limit);
         }
 
         public async Task<Sale?> GetSaleByIdAsync(int id)
