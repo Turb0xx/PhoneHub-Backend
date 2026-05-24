@@ -7,7 +7,8 @@ namespace PhoneHub.Core.Interfaces
     {
         IProductRepository ProductRepository { get; }
         ISaleRepository SaleRepository { get; }
-        IBaseRepository<User> UserRepository { get; }
+        IUserRepository UserRepository { get; }
+        IInvoiceRepository InvoiceRepository { get; }
 
         void SaveChanges();
         Task SaveChangesAsync();

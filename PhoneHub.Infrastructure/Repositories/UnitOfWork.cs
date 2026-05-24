@@ -14,7 +14,8 @@ namespace PhoneHub.Infrastructure.Repositories
 
         private IProductRepository? _productRepository;
         private ISaleRepository? _saleRepository;
-        private IBaseRepository<User>? _userRepository;
+        private IUserRepository? _userRepository;
+        private IInvoiceRepository? _invoiceRepository;
 
         private IDbContextTransaction? _efTransaction;
 
@@ -30,8 +31,11 @@ namespace PhoneHub.Infrastructure.Repositories
         public ISaleRepository SaleRepository =>
             _saleRepository ??= new SaleRepository(_context, _dapper);
 
-        public IBaseRepository<User> UserRepository =>
-            _userRepository ??= new BaseRepository<User>(_context);
+        public IUserRepository UserRepository =>
+            _userRepository ??= new UserRepository(_context, _dapper);
+
+        public IInvoiceRepository InvoiceRepository =>
+            _invoiceRepository ??= new InvoiceRepository(_context, _dapper);
 
         public async Task BeginTransactionAsync()
         {
