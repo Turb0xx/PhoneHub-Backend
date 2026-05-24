@@ -17,11 +17,42 @@ namespace PhoneHub.Infrastructure.Repositories
             _dapper = dapper;
         }
 
-        public async Task<IEnumerable<Product>> GetAllAvailableAsync()
+        public async Task<IEnumerable<Product>> GetAllDapperAsync()
         {
-            return await _entities
-                .Where(p => p.Stock > 0)
-                .ToListAsync();
+            try
+            {
+                var sql = _dapper.Provider switch
+                {
+                    DataBaseProvider.SqlServer => ProductQueries.GetAllSqlServer,
+                    DataBaseProvider.MySql => ProductQueries.GetAllMySql,
+                    _ => throw new NotSupportedException("Provider no soportado")
+                };
+
+                return await _dapper.QueryAsync<Product>(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Product?> GetByIdDapperAsync(int id)
+        {
+            try
+            {
+                var sql = _dapper.Provider switch
+                {
+                    DataBaseProvider.SqlServer => ProductQueries.GetByIdSqlServer,
+                    DataBaseProvider.MySql => ProductQueries.GetByIdMySql,
+                    _ => throw new NotSupportedException("Provider no soportado")
+                };
+
+                return await _dapper.QueryFirstOrDefaultAsync<Product>(sql, new { Id = id });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<IEnumerable<Product>> GetAllAvailableDapperAsync(int limit = 10)

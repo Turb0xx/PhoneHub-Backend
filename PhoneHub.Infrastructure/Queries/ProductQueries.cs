@@ -2,6 +2,26 @@ namespace PhoneHub.Infrastructure.Queries
 {
     public static class ProductQueries
     {
+        public static string GetAllMySql = @"
+            SELECT Id, Brand, Model, Description, Price, Stock, CreatedAt
+            FROM products
+            ORDER BY Brand ASC;";
+
+        public static string GetAllSqlServer = @"
+            SELECT Id, Brand, Model, Description, Price, Stock, CreatedAt
+            FROM products
+            ORDER BY Brand ASC;";
+
+        public static string GetByIdMySql = @"
+            SELECT Id, Brand, Model, Description, Price, Stock, CreatedAt
+            FROM products
+            WHERE Id = @Id;";
+
+        public static string GetByIdSqlServer = @"
+            SELECT Id, Brand, Model, Description, Price, Stock, CreatedAt
+            FROM products
+            WHERE Id = @Id;";
+
         public static string GetAllAvailableMySql = @"
             SELECT Id, Brand, Model, Description, Price, Stock, CreatedAt
             FROM products

@@ -1,9 +1,12 @@
+using PhoneHub.Core.CustomEntities;
 using PhoneHub.Core.DTOs;
 using PhoneHub.Core.Entities;
+using PhoneHub.Core.Enum;
 using PhoneHub.Core.Exceptions;
 using PhoneHub.Core.Interfaces;
 using PhoneHub.Core.QueryFilters;
 using PhoneHub.Services.Interfaces;
+using System.Net;
 
 namespace PhoneHub.Services.Services
 {
@@ -16,28 +19,42 @@ namespace PhoneHub.Services.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IEnumerable<Product>> GetAllProductsAsync(ProductQueryFilter? filters = null)
+        public async Task<ResponseData> GetAllProductsAsync(ProductQueryFilter? filters = null)
         {
-            IEnumerable<Product> products;
+            filters ??= new ProductQueryFilter();
 
-            if (filters?.OnlyAvailable == true)
-                products = await _unitOfWork.ProductRepository.GetAllAvailableAsync();
-            else
-                products = await _unitOfWork.ProductRepository.GetAll();
+            var products = await _unitOfWork.ProductRepository.GetAllDapperAsync();
 
-            if (filters != null)
+            if (filters.OnlyAvailable == true)
+                products = products.Where(p => p.Stock > 0);
+
+            if (filters.Brand != null)
+                products = products.Where(p => p.Brand.ToLower().Contains(filters.Brand.ToLower()));
+
+            if (filters.Model != null)
+                products = products.Where(p => p.Model.ToLower().Contains(filters.Model.ToLower()));
+
+            if (filters.MaxPrice != null)
+                products = products.Where(p => p.Price <= filters.MaxPrice);
+
+            var paged = PagedList<object>.Create(products, filters.PageNumber, filters.PageSize);
+
+            if (paged.Any())
             {
-                if (filters.Brand != null)
-                    products = products.Where(p => p.Brand.ToLower().Contains(filters.Brand.ToLower()));
-
-                if (filters.Model != null)
-                    products = products.Where(p => p.Model.ToLower().Contains(filters.Model.ToLower()));
-
-                if (filters.MaxPrice != null)
-                    products = products.Where(p => p.Price <= filters.MaxPrice);
+                return new ResponseData
+                {
+                    Messages = new[] { new Message { Type = TypeMessage.success.ToString(), Description = "Productos recuperados correctamente." } },
+                    Pagination = paged,
+                    StatusCode = HttpStatusCode.OK
+                };
             }
 
-            return products;
+            return new ResponseData
+            {
+                Messages = new[] { new Message { Type = TypeMessage.warning.ToString(), Description = "No se encontraron productos con los filtros indicados." } },
+                Pagination = paged,
+                StatusCode = HttpStatusCode.NotFound
+            };
         }
 
         public async Task<IEnumerable<Product>> GetAvailableProductsDapperAsync(int limit = 10)
@@ -47,7 +64,7 @@ namespace PhoneHub.Services.Services
 
         public async Task<Product?> GetProductByIdAsync(int id)
         {
-            return await _unitOfWork.ProductRepository.GetById(id);
+            return await _unitOfWork.ProductRepository.GetByIdDapperAsync(id);
         }
 
         public async Task InsertProduct(Product product)

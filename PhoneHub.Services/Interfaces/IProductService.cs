@@ -1,3 +1,4 @@
+using PhoneHub.Core.CustomEntities;
 using PhoneHub.Core.DTOs;
 using PhoneHub.Core.Entities;
 using PhoneHub.Core.QueryFilters;
@@ -6,7 +7,7 @@ namespace PhoneHub.Services.Interfaces
 {
     public interface IProductService
     {
-        Task<IEnumerable<Product>> GetAllProductsAsync(ProductQueryFilter? filters = null);
+        Task<ResponseData> GetAllProductsAsync(ProductQueryFilter? filters = null);
         Task<IEnumerable<Product>> GetAvailableProductsDapperAsync(int limit = 10);
         Task<Product?> GetProductByIdAsync(int id);
         Task InsertProduct(Product product);

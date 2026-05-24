@@ -18,22 +18,6 @@ namespace PhoneHub.Infrastructure.Repositories
             _dapper = dapper;
         }
 
-        public async Task<Sale?> GetByIdWithDetailsAsync(int id)
-        {
-            return await _entities
-                .Include(s => s.Product)
-                .Include(s => s.User)
-                .FirstOrDefaultAsync(s => s.Id == id);
-        }
-
-        public async Task<IEnumerable<Sale>> GetAllWithDetailsAsync()
-        {
-            return await _entities
-                .Include(s => s.Product)
-                .Include(s => s.User)
-                .ToListAsync();
-        }
-
         public async Task<IEnumerable<SaleResponseDto>> GetAllWithDetailsDapperAsync(int limit = 10)
         {
             try
@@ -53,9 +37,47 @@ namespace PhoneHub.Infrastructure.Repositories
             }
         }
 
+        public async Task<SaleResponseDto?> GetByIdWithDetailsDapperAsync(int id)
+        {
+            try
+            {
+                var sql = _dapper.Provider switch
+                {
+                    DataBaseProvider.SqlServer => SaleQueries.GetByIdWithDetailsSqlServer,
+                    DataBaseProvider.MySql => SaleQueries.GetByIdWithDetailsMySql,
+                    _ => throw new NotSupportedException("Provider no soportado")
+                };
+
+                return await _dapper.QueryFirstOrDefaultAsync<SaleResponseDto>(sql, new { Id = id });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<bool> ExistsByProductIdAsync(int productId)
         {
             return await _entities.AnyAsync(s => s.ProductId == productId);
+        }
+
+        public async Task<IEnumerable<SellerSummaryDto>> GetDailyReportAsync(DateTime date)
+        {
+            try
+            {
+                var sql = _dapper.Provider switch
+                {
+                    DataBaseProvider.SqlServer => SaleQueries.GetDailyReportSqlServer,
+                    DataBaseProvider.MySql => SaleQueries.GetDailyReportMySql,
+                    _ => throw new NotSupportedException("Provider no soportado")
+                };
+
+                return await _dapper.QueryAsync<SellerSummaryDto>(sql, new { Date = date.Date });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }
