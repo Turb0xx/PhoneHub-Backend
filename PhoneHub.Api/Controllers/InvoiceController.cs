@@ -19,11 +19,9 @@ namespace PhoneHub.Api.Controllers
             _invoiceService = invoiceService;
         }
 
-        /// <summary>
         /// Genera una factura/comprobante para una venta procesada (CU-05).
-        /// RN-12: Una venta solo puede tener una factura. RN-13: Número único auto-generado.
-        /// </summary>
-        /// <param name="saleId">ID de la venta a facturar.</param>
+        /// RN-12: Una venta solo puede tener una factura.
+        /// RN-13: Número único auto-generado.
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ApiResponse<InvoiceDto>))]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
