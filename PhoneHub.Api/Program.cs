@@ -148,16 +148,12 @@ namespace PhoneHub.Api
             app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             #region Swagger UI
-            if (app.Environment.IsDevelopment())
+            app.UseSwagger();
+            app.UseSwaggerUI(options =>
             {
-                app.UseSwagger();
-                app.UseSwaggerUI(options =>
-                {
-                    options.SwaggerEndpoint("/swagger/v1/swagger.json", "PhoneHub API v1");
-                    options.RoutePrefix = string.Empty;
-                });
-                app.MapOpenApi();
-            }
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "PhoneHub API v1");
+                options.RoutePrefix = string.Empty;
+            });
             #endregion
 
             app.UseHttpsRedirection();
